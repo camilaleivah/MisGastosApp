@@ -34,7 +34,7 @@ if login():
 
     LIMITES = {
         "Comida": 200000,
-        "Regalos": 50000,
+        "Regalos": 60000,
         "Ropa": 100000,
         "Hogar": 50000
     }
