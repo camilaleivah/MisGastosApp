@@ -19,7 +19,7 @@ def login():
         clave = st.text_input("Contraseña", type="password")
         
         if st.button("Entrar"):
-            if usuario in USUARIOS_AUTORIZADOS and USUARIOS_AUTORIZADOS[usuario] == clave:
+            if usuario in USUARIO_AUTORIZADO and USUARIO_AUTORIZADO[usuario] == clave:
                 st.session_state.autenticado = True
                 st.rerun()
             else:
