@@ -67,7 +67,7 @@ if check_password():
             compra = st.text_input("Compra", placeholder="Ej: Supermercado...")
             col1, col2, col3 = st.columns(3)
             with col1:
-                valor = st.number_input("Valor de la compra ($)", min_value=0, step=1000)
+                monto = st.number_input("Monto de la compra ($)", min_value=0, step=1000)
             with col2:
                 categoria = st.selectbox("Categoría", list(LIMITES.keys()))
             with col3:
@@ -83,7 +83,7 @@ if check_password():
                         "Fecha": fecha_dt.strftime('%d/%m/%Y'),
                         "Compra": compra,
                         "Categoria": categoria,
-                        "Valor": valor,
+                        "Monto": monto,
                         "Medio de Pago": mediodepago
                     }])
                     df_final = pd.concat([df_actual, nueva_fila], ignore_index=True)
@@ -94,11 +94,11 @@ if check_password():
     with tab_status:
         df = leer_datos()
         if df is not None and not df.empty:
-            df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce').fillna(0)
+            df['Monto'] = pd.to_numeric(df['Monto'], errors='coerce').fillna(0)
             
             # --- CÁLCULOS GLOBALES ---
             total_presupuesto_global = sum(LIMITES.values())
-            total_gastado_global = df['Valor'].sum()
+            total_gastado_global = df['Monto'].sum()
             total_disponible_global = max(0, total_presupuesto_global - total_gastado_global)
             porcentaje_total = int((total_gastado_global / total_presupuesto_global) * 100) if total_presupuesto_global > 0 else 0
 
@@ -131,7 +131,7 @@ if check_password():
             st.subheader("📂 Desglose por Categoría")
             cols = st.columns(4)
             for i, (cat, limite) in enumerate(LIMITES.items()):
-                gastado = df[df['Categoria'] == cat]['Valor'].sum()
+                gastado = df[df['Categoria'] == cat]['Monto'].sum()
                 disponible = max(0, limite - gastado)
                 with cols[i]:
                     st.markdown(f"**{cat}**")
