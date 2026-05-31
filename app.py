@@ -85,7 +85,8 @@ if login():
                         "Fecha": fecha_dt.strftime('%d/%m/%Y'),
                         "Compra": compra,
                         "Categoria": categoria,
-                        "Valor": valor
+                        "Valor": valor,
+                        "Medio de Pago": medio de pago
                     }])
                     df_final = pd.concat([df_actual, nueva_fila], ignore_index=True)
                     conn.update(data=df_final)
