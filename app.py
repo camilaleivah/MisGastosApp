@@ -86,7 +86,7 @@ if login():
                         "Compra": compra,
                         "Categoria": categoria,
                         "Valor": valor,
-                        "Medio de Pago": medio de pago
+                        "Medio de Pago": mediodepago
                     }])
                     df_final = pd.concat([df_actual, nueva_fila], ignore_index=True)
                     conn.update(data=df_final)
