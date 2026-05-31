@@ -4,34 +4,30 @@ import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime
 
-# 1. CONFIGURACIÓN DE SEGURIDAD (Credenciales)
-# Este es el usuario que podrá entrar
-USUARIO_AUTORIZADO = st.secrets["passwords"]
+# 1. CONFIGURACIÓN DE PÁGINA
+st.set_page_config(page_title="Mi Seguimiento Mensual", layout="wide")
 
-
-def login():
-    if "autenticado" not in st.session_state:
-        st.session_state.autenticado = False
-
-    if not st.session_state.autenticado:
+# 2. SISTEMA DE AUTENTICACIÓN
+def check_password():
+    if "password_correct" not in st.session_state:
         st.title("🔐 Acceso Restringido")
-        usuario = st.text_input("Usuario")
-        clave = st.text_input("Contraseña", type="password")
-        
+        st.text_input("Usuario", key="username")
+        st.text_input("Contraseña", type="password", key="password")
         if st.button("Entrar"):
-            if usuario in USUARIO_AUTORIZADO and USUARIO_AUTORIZADO[usuario] == clave:
-                st.session_state.autenticado = True
+            if (st.session_state["username"] in st.secrets["passwords"] and 
+                st.session_state["password"] == st.secrets["passwords"][st.session_state["username"]]):
+                st.session_state["password_correct"] = True
+                del st.session_state["password"]
+                del st.session_state["username"]
                 st.rerun()
             else:
                 st.error("Usuario o contraseña incorrectos")
         return False
-    return True
+    return st.session_state["password_correct"]
 
-# SOLO SI ESTÁ AUTENTICADO SE MUESTRA EL RESTO
-if login():
-    # --- TODO TU CÓDIGO ANTERIOR AQUÍ ---
-    st.set_page_config(page_title="Mi Seguimiento Mensual", layout="wide")
+if check_password():
 
+    # Límites configurados
     LIMITES = {
         "Comida": 200000,
         "Regalos": 60000,
@@ -43,7 +39,7 @@ if login():
         "Tarjeta de Crédito",
         "Tarjeta de Débito",
         "Efectivo"
-    }    
+    }   
 
     def format_clp(valor):
         return f"${valor:,.0f}".replace(",", ".")
@@ -53,12 +49,14 @@ if login():
     def leer_datos():
         return conn.read(ttl="0s")
 
-    st.title("📊 Seguimiento de Gastos")
-    
-    # Botón para cerrar sesión
-    if st.sidebar.button("Cerrar Sesión"):
-        st.session_state.autenticado = False
-        st.rerun()
+    # Header
+    col_t, col_b = st.columns([0.8, 0.2])
+    with col_t:
+        st.title("📊 Seguimiento de Gastos")
+    with col_b:
+        if st.button("Cerrar Sesión"):
+            st.session_state["password_correct"] = False
+            st.rerun()
 
     tab_ingreso, tab_status = st.tabs(["➕ Ingresar Compra", "📈 Status"])
 
@@ -93,36 +91,57 @@ if login():
                     st.success(f"✅ Registrado: {compra}")
                     st.rerun()
 
-    # --- PANTALLA: STATUS ---
     with tab_status:
         df = leer_datos()
         if df is not None and not df.empty:
             df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce').fillna(0)
             
-            st.subheader("Resumen de Disponibilidad")
+            # --- CÁLCULOS GLOBALES ---
+            total_presupuesto_global = sum(LIMITES.values())
+            total_gastado_global = df['Valor'].sum()
+            total_disponible_global = max(0, total_presupuesto_global - total_gastado_global)
+            porcentaje_total = int((total_gastado_global / total_presupuesto_global) * 100) if total_presupuesto_global > 0 else 0
+
+            # --- SECCIÓN: BALANCE TOTAL ---
+            st.subheader("💰 Balance Total del Mes")
+            col_chart, col_metrics = st.columns([1, 1])
+
+            with col_chart:
+                # Gráfico Global: Rojo (Gastado), Verde (Disponible)
+                fig_global = go.Figure(data=[go.Pie(
+                    labels=['Gastado', 'Disponible'],
+                    values=[total_gastado_global, total_disponible_global],
+                    hole=.7,
+                    marker_colors=['#FF4B4B', '#28A745'],
+                    textinfo='percent'
+                )])
+                fig_global.update_layout(showlegend=True, height=300, margin=dict(l=0,r=0,t=0,b=0),
+                                        annotations=[dict(text=f"{porcentaje_total}%", x=0.5, y=0.5, font_size=30, showarrow=False)])
+                st.plotly_chart(fig_global, use_container_width=True)
+
+            with col_metrics:
+                st.write("### Resumen General")
+                st.metric("Presupuesto Total", format_clp(total_presupuesto_global))
+                st.metric("Total Gastado", format_clp(total_gastado_global), delta=format_clp(total_gastado_global), delta_color="inverse")
+                st.metric("Total Disponible", format_clp(total_disponible_global))
+
+            st.divider()
+
+            # --- SECCIÓN: DESGLOSE POR CATEGORÍA ---
+            st.subheader("📂 Desglose por Categoría")
             cols = st.columns(4)
-            
             for i, (cat, limite) in enumerate(LIMITES.items()):
                 gastado = df[df['Categoria'] == cat]['Valor'].sum()
                 disponible = max(0, limite - gastado)
-                
                 with cols[i]:
-                    st.markdown(f"### {cat}")
-                    
-                    if gastado >= limite:
-                        labels, values, colors = ['Gastado'], [gastado], ['#FF4B4B']
-                    else:
-                        labels, values, colors = ['Gastado', 'Disponible'], [gastado, disponible], ['#FF4B4B', '#28A745']
-                    
-                    fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.6, 
-                                               marker_colors=colors, textinfo='percent')])
-                    fig.update_layout(showlegend=False, height=200, margin=dict(l=0,r=0,t=0,b=0),
-                                     annotations=[dict(text=f"{int((gastado/limite)*100)}%", x=0.5, y=0.5, font_size=20, showarrow=False)])
-                    
+                    st.markdown(f"**{cat}**")
+                    fig = go.Figure(data=[go.Pie(labels=['Gastado', 'Disponible'], values=[gastado, disponible], 
+                                               hole=.6, marker_colors=['#FF4B4B', '#28A745'], textinfo='none')])
+                    fig.update_layout(showlegend=False, height=150, margin=dict(l=0,r=0,t=0,b=0),
+                                     annotations=[dict(text=f"{int((gastado/limite)*100)}%", x=0.5, y=0.5, font_size=16, showarrow=False)])
                     st.plotly_chart(fig, use_container_width=True)
-                    st.write(f"Gastado: **{format_clp(gastado)}**")
-                    st.write(f"Quedan: **{format_clp(disponible)}**")
+                    st.caption(f"Quedan: {format_clp(disponible)}")
 
             st.divider()
-            st.subheader("Historial en la Nube")
+            st.subheader("📝 Historial")
             st.dataframe(df, use_container_width=True)
