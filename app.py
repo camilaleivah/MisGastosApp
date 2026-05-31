@@ -73,7 +73,7 @@ if login():
             with col2:
                 categoria = st.selectbox("Categoría", list(LIMITES.keys()))
             with col3:
-                mediodepago = st.selectbox("Medio de Pago", list(MEDIODEPAGO.keys()))
+                mediodepago = st.selectbox("Medio de Pago", MEDIODEPAGO)
             fecha_dt = st.date_input("Fecha", value=datetime.now())
             
             btn_guardar = st.form_submit_button("Guardar Compra")
