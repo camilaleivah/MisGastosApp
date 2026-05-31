@@ -39,6 +39,12 @@ if login():
         "Hogar": 50000
     }
 
+    MEDIODEPAGO = {
+        "Tarjeta de Crédito",
+        "Tarjeta de Débito",
+        "Efectivo"
+    }    
+
     def format_clp(valor):
         return f"${valor:,.0f}".replace(",", ".")
 
@@ -61,11 +67,13 @@ if login():
         st.header("Nueva Compra")
         with st.form("form_compra", clear_on_submit=True):
             compra = st.text_input("Compra", placeholder="Ej: Supermercado...")
-            col1, col2 = st.columns(2)
+            col1, col2, col3 = st.columns(3)
             with col1:
                 valor = st.number_input("Valor de la compra ($)", min_value=0, step=1000)
             with col2:
                 categoria = st.selectbox("Categoría", list(LIMITES.keys()))
+            with col3:
+                mediodepago = st.selectbox("Medio de Pago", list(MEDIODEPAGO.keys()))
             fecha_dt = st.date_input("Fecha", value=datetime.now())
             
             btn_guardar = st.form_submit_button("Guardar Compra")
