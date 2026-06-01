@@ -29,10 +29,10 @@ if check_password():
 
     # Límites configurados
     LIMITES = {
-        "Comida": 200000,
-        "Regalos": 60000,
-        "Ropa": 100000,
-        "Hogar": 50000
+        "Alimentación": 200000,
+        "Farmacia": 160000,
+        "Transporte": 180000,
+        "Otros": 50000
     }
 
     MEDIODEPAGO = {
