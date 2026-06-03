@@ -66,16 +66,14 @@ if check_password():
     with tab_ingreso:
         st.header("Nueva Compra")
         with st.form("form_compra", clear_on_submit=True):
-            col1, col2, col3 = st.columns(3)
-            
-            monto = st.number_input("Monto de la compra ($)", min_value=0, step=1000)
+            col1, col2, col3, col4 = st.columns(4)
             with col1:
-                compra = st.text_input("Compra (Regalo,Hogar,Est,Varios", placeholder="Ej: Supermercado...")
-            
-
+                monto = st.number_input("Monto de la compra ($)", min_value=0, step=1000)
             with col2:
-                categoria = st.selectbox("Categoría", list(LIMITES.keys()))
+                compra = st.text_input("Compra (Regalo,Hogar,Est,Varios)", placeholder="Ej: Supermercado...")
             with col3:
+                categoria = st.selectbox("Categoría", list(LIMITES.keys()))
+            with col4:
                 mediodepago = st.selectbox("Medio de Pago", MEDIODEPAGO)
             fecha_dt = st.date_input("Fecha", value=datetime.now())
             
