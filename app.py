@@ -70,7 +70,7 @@ if check_password():
             with col1:
                 monto = st.number_input("Monto de la compra ($)", min_value=0, step=1000)
             with col2:
-                compra = st.text_input("Compra (Regalo,Hogar,Est,Varios)", placeholder="Ej: Supermercado...")
+                compra = st.text_input("Compra (Regalo,Hogar,Estacionamiento,Varios)", placeholder="Ej: Supermercado...")
             with col3:
                 categoria = st.selectbox("Categoría", list(LIMITES.keys()))
             with col4:
