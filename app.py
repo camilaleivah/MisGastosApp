@@ -38,7 +38,8 @@ if check_password():
     MEDIODEPAGO = {
         "Tarjeta de Crédito",
         "Tarjeta de Débito",
-        "Efectivo"
+        "Efectivo",
+        "Cami"
     }   
 
     def format_clp(valor):
@@ -64,7 +65,7 @@ if check_password():
     with tab_ingreso:
         st.header("Nueva Compra")
         with st.form("form_compra", clear_on_submit=True):
-            compra = st.text_input("Compra", placeholder="Ej: Supermercado...")
+            compra = st.text_input("Compra (Otros: Regalo,Hogar,Estacionamiento,Varios", placeholder="Ej: Supermercado...")
             col1, col2, col3 = st.columns(3)
             with col1:
                 monto = st.number_input("Monto de la compra ($)", min_value=0, step=1000)
