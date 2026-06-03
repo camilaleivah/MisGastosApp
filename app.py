@@ -65,10 +65,11 @@ if check_password():
     with tab_ingreso:
         st.header("Nueva Compra")
         with st.form("form_compra", clear_on_submit=True):
-            compra = st.text_input("Compra (Otros: Regalo,Hogar,Estacionamiento,Varios", placeholder="Ej: Supermercado...")
-            col1, col2, col3 = st.columns(3)
             with col1:
                 monto = st.number_input("Monto de la compra ($)", min_value=0, step=1000)
+            compra = st.text_input("Compra (Regalo,Hogar,Est,Varios", placeholder="Ej: Supermercado...")
+            col1, col2, col3 = st.columns(3)
+
             with col2:
                 categoria = st.selectbox("Categoría", list(LIMITES.keys()))
             with col3:
