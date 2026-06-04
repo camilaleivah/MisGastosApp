@@ -35,13 +35,9 @@ if check_password():
         "Otros": 145000
     }
 
-    MEDIODEPAGO = {
-        "Tarjeta de Crédito",
-        "Tarjeta de Débito",
-        "Cami",
-        "Efectivo"
-        
-    }   
+
+    MEDIODEPAGO = ["Tarjeta de Crédito", "Tarjeta de Débito", "Cami", "Efectivo"]
+           
 
     def format_clp(valor):
         return f"${valor:,.0f}".replace(",", ".")
